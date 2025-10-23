@@ -6,7 +6,7 @@ error_reporting(E_ALL & ~E_DEPRECATED);
 
 // --- گام ۲: فراخوانی منطق اصلی ---
 // (این کد دقیقاً همان کد فایل قبلی شماست)
-require_once 'SepidarApiClient.php';
+require_once __DIR__ . '/../SepidarApiClient.php';
 
 // ! مقادیر زیر را با اطلاعات واقعی خود جایگزین کنید
 $sepidarApiUrl = 'http://127.0.0.1:7373/api'; // آدرس وب‌سرویس سپیدار
@@ -202,4 +202,5 @@ try {
 
 </body>
 </html>
+
 
