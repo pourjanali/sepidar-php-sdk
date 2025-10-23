@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 
 // ۱. فایل کلاس اصلی را که درست کار کرد، فراخوانی کن
 // ! مطمئن شوید که نام فایل دقیقاً SepidarApiClient.php است
-require_once 'SepidarApiClient.php';
+require_once __DIR__ . '/../SepidarApiClient.php';
 
 // ! مقادیر زیر را با اطلاعات واقعی خود جایگزین کنید
 $sepidarApiUrl = 'http://127.0.0.1:7373/api'; // آدرس وب‌سرویس سپیدار
@@ -57,3 +57,4 @@ try {
     echo json_encode(['success' => false, 'message' => 'Exception', 'error' => $e->getMessage()]);
 }
 ?>
+
