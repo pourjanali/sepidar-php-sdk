@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- فونت وزیرمتن برای خوانایی فارسی -->
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+  <!-- ایمپورت کتابخانه RapiDoc -->
+  <script type="module" src="https://unpkg.com/rapidoc@9.3.4/dist/rapidoc-min.js"></script>
+  <title>مستندات API سپیدار</title>
+</head>
+<body>
+  
+  <rapi-doc
+    <!-- این خط به فایل جیسان شما اشاره می‌کند -->
+    spec-url="sepidar-api.json" 
+    
+    <!-- تنظیمات ظاهری -->
+    theme="dark"
+    render-style="view"
+    show-header="false"
+    show-info="true"
+    allow-authentication="false"
+    allow-server-selection="false"
+    allow-api-list-style-selection="false"
+    nav-bg-color="#1A202C"
+    nav-text-color="#CBD5E0"
+    primary-color="#3182CE"
+    
+    <!-- تنظیمات فونت فارسی -->
+    regular-font="Vazirmatn"
+    mono-font="monospace"
+  >
+    <!-- لوگو و عنوان سفارشی در بالای صفحه -->
+    <div 
+      slot="nav-logo" 
+      style="display: flex; align-items: center; justify-content: center; padding: 12px 0; font-family: 'Vazirmatn', sans-serif;"
+    >
+      <h2 style="color: white; margin: 0; font-weight: 700;">
+        مستندات API سپیدار
+      </h2>
+    </div>
+  </rapi-doc>
+
+</body>
+</html>
