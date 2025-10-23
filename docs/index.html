@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<!-- dir="rtl" حذف شد تا کل صفحه چپ‌چین باشد -->
+<html lang="fa"> 
 <head>
   <meta charset="UTF-8">
   <title>مستندات API سپیدار (Swagger UI)</title>
@@ -17,21 +18,28 @@
       padding: 0;
       height: 100%;
       width: 100%;
-      font-family: 'Vazirmatn', sans-serif !important;
+      /* فونت اصلی بدنه صفحه برای پیام لودینگ اولیه */
+      font-family: 'Vazirmatn', sans-serif !important; 
       overflow: hidden; /* جلوگیری از اسکرول اضافه */
     }
     #swagger-ui {
       height: 100vh;
       width: 100vw;
     }
-    /* اعمال فونت فارسی به بخش‌هایی که Swagger ممکن است بازنویسی کند */
+    /* اعمال فونت فارسی به بخش‌های کلیدی Swagger UI */
+    /* (این استایل‌ها تضمین می‌کنند متن‌های فارسی خوانا باشند) */
     .swagger-ui .info .title, .swagger-ui .opblock-summary-path, 
     .swagger-ui .opblock-summary-description, .swagger-ui .prop-type, 
     .swagger-ui .parameter__name, .swagger-ui .description, 
     .swagger-ui .info .description p, .swagger-ui .opblock-tag,
-    .swagger-ui .parameter__in {
+    .swagger-ui .parameter__in, .swagger-ui label, .swagger-ui table thead tr th,
+    .swagger-ui .response-col_status, .swagger-ui .response-col_links {
        font-family: 'Vazirmatn', sans-serif !important;
     }
+    /* ممکن است لازم باشد دکمه‌ها هم فونت بگیرند */
+     .swagger-ui button {
+        font-family: 'Vazirmatn', sans-serif !important;
+     }
   </style>
 </head>
 
@@ -74,3 +82,4 @@
   </script>
 </body>
 </html>
+
