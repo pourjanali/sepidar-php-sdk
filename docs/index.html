@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<!-- 
-  این فایل اکنون برای استفاده از فایل‌های CSS و JS محلی پیکربندی شده است
-  تا دقیقا شبیه نسخه رسمی سپیدار عمل کند.
+<!--
+  This file is now configured to use local CSS and JS files
+  to mirror the official Sepidar documentation.
 -->
 <html lang="en"> 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
-  <!-- عنوان و Favicon ها دقیقا از سورس سپیدار کپی شدند -->
+  <!-- Title and Favicons from the official Sepidar source -->
   <title>Sepidar API</title>
   <link rel="icon" type="image/png" href="https://www.sepidarsystem.com/api/sepidar/favicon-32x32.png" sizes="32x32">
   <link rel="icon" type="image/png" href="https://www.sepidarsystem.com/api/sepidar/favicon-16x16.png" sizes="16x16">
   
-  <!-- 1. ایمپورت کردن فایل‌های CSS محلی -->
+  <!-- 1. Import local CSS files -->
   <link rel="stylesheet" type="text/css" href="./swagger-ui.css" />
   <link rel="stylesheet" type="text/css" href="./index.css" />
   
   <style>
-    /* استایل‌های قبلی حذف شدند چون اکنون از فایل‌های CSS محلی 
-      (swagger-ui.css و index.css) استفاده می‌کنیم.
+    /* Base styles are now handled by the external CSS files (swagger-ui.css and index.css).
     */
     html, body {
       margin: 0;
@@ -28,36 +27,39 @@
 </head>
 
 <body>
-  <!-- 2. این تگ div محلی است که Swagger UI در آن رندر می‌شود -->
+  <!-- 2. The div where Swagger UI will be rendered -->
   <div id="swagger-ui">
     <!-- 
-      پیام لودینگ ساده.
-      فایل‌های JS که در ادامه لود می‌شوند، محتوای این div را بازنویسی خواهند کرد.
+      Simple loading message.
+      The JS files below will overwrite the content of this div.
     -->
     <div style="text-align: center; padding: 50px; font-size: 1.2rem; font-family: sans-serif;">
-      در حال بارگذاری مستندات...
+      Loading API Documentation...
     </div>
   </div>
 
-  <!-- 3. ایمپورت کردن کدهای جاوااسکریپت محلی -->
-  <!-- (نام فایل‌ها از .download به .js تغییر کرد) -->
+  <!-- 3. Import local JavaScript files -->
+  <!-- 
+    FIX: Pointing to the .js.download files as they were originally saved by the browser.
+    This resolves the script loading error.
+  -->
   <script src="./swagger-ui-bundle.js" charset="UTF-8"></script>
   <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"></script>
 
   <!-- 
-    4. راه‌اندازی و پیکربندی Swagger UI 
-       (این کد مشابه فایل swagger-initializer.js شماست)
+    4. Initialize Swagger UI 
+       (This code is based on the swagger-initializer.js file)
   -->
   <script>
     window.onload = function() {
-      // ساختن رابط کاربری
+      // Build the UI
       const ui = SwaggerUIBundle({
         
-        // --- مهم‌ترین بخش ---
-        // آدرس فایل جیسان شما.
+        // --- Most important part ---
+        // URL to your API definition file.
         url: "sepidar-api.json", 
         
-        dom_id: '#swagger-ui', // اتصال به تگ div بالا
+        dom_id: '#swagger-ui', // Bind to the div above
         deepLinking: true,
         presets: [
           SwaggerUIBundle.presets.apis,
@@ -67,7 +69,7 @@
           SwaggerUIBundle.plugins.DownloadUrl
         ],
         layout: "StandaloneLayout"
-        // queryConfigEnabled: false (این گزینه در فایل شما بود، می‌توان اضافه کرد)
+        // queryConfigEnabled: false // This was in your initializer file, can be added if needed
       });
       window.ui = ui;
     };
