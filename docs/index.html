@@ -40,40 +40,18 @@
 
   <!-- 3. Import local JavaScript files -->
   <!-- 
-    FIX: Pointing to the .js.download files as they were originally saved by the browser.
-    This resolves the script loading error.
+    FIX: Pointing to the .js files (without .download) as they appear
+    in your latest uploaded file list.
   -->
   <script src="./swagger-ui-bundle.js" charset="UTF-8"></script>
   <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"></script>
 
   <!-- 
-    4. Initialize Swagger UI 
-       (This code is based on the swagger-initializer.js file)
+    4. Initialize Swagger UI using the external initializer file.
+       This is cleaner than inline script.
   -->
-  <script>
-    window.onload = function() {
-      // Build the UI
-      const ui = SwaggerUIBundle({
-        
-        // --- Most important part ---
-        // URL to your API definition file.
-        url: "sepidar-api.json", 
-        
-        dom_id: '#swagger-ui', // Bind to the div above
-        deepLinking: true,
-        presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIStandalonePreset
-        ],
-        plugins: [
-          SwaggerUIBundle.plugins.DownloadUrl
-        ],
-        layout: "StandaloneLayout"
-        // queryConfigEnabled: false // This was in your initializer file, can be added if needed
-      });
-      window.ui = ui;
-    };
-  </script>
+  <script src="./swagger-initializer.js" charset="UTF-8"></script>
+
 </body>
 </html>
 
