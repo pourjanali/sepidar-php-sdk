@@ -1,60 +1,60 @@
 <!DOCTYPE html>
-<!-- dir="rtl" حذف شد تا کل صفحه چپ‌چین باشد -->
-<html lang="fa"> 
+<!-- 
+  این فایل اکنون برای استفاده از فایل‌های CSS و JS محلی پیکربندی شده است
+  تا دقیقا شبیه نسخه رسمی سپیدار عمل کند.
+-->
+<html lang="en"> 
 <head>
-  <meta charset="UTF-8">
-  <title>مستندات API سپیدار (Swagger UI)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
-  <!-- فونت وزیرمتن حذف شد -->
-  <!-- <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet"> -->
+  <!-- عنوان و Favicon ها دقیقا از سورس سپیدار کپی شدند -->
+  <title>Sepidar API</title>
+  <link rel="icon" type="image/png" href="https://www.sepidarsystem.com/api/sepidar/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="https://www.sepidarsystem.com/api/sepidar/favicon-16x16.png" sizes="16x16">
   
-  <!-- 1. ایمپورت کردن فایل‌های CSS و JS استاندارد Swagger UI -->
-  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css" />
+  <!-- 1. ایمپورت کردن فایل‌های CSS محلی -->
+  <link rel="stylesheet" type="text/css" href="./swagger-ui.css" />
+  <link rel="stylesheet" type="text/css" href="./index.css" />
   
   <style>
-    /* استایل‌های پایه برای نمایش تمام-صفحه */
+    /* استایل‌های قبلی حذف شدند چون اکنون از فایل‌های CSS محلی 
+      (swagger-ui.css و index.css) استفاده می‌کنیم.
+    */
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      width: 100%;
-      /* فونت وزیرمتن حذف شد - از فونت پیش‌فرض مرورگر استفاده می‌شود */
-      /* font-family: 'Vazirmatn', sans-serif !important; */ 
-      /* overflow: hidden حذف شد تا اسکرول فعال شود */
-      /* overflow: hidden; */ 
     }
-    #swagger-ui {
-      /* ارتفاع را 100% والد (body) قرار می‌دهیم تا اسکرول داخلی کار کند */
-      height: 100%; 
-      width: 100%;
-    }
-    /* استایل‌های مربوط به فونت وزیرمتن حذف شدند */
-    /* .swagger-ui .info .title, ... { font-family: 'Vazirmatn', ... } */
-    /* .swagger-ui button { font-family: 'Vazirmatn', ... } */
   </style>
 </head>
 
 <body>
   <!-- 2. این تگ div محلی است که Swagger UI در آن رندر می‌شود -->
   <div id="swagger-ui">
-    <!-- نمایش پیام لودینگ تا زمان بارگذاری جیسان -->
-    <div style="text-align: center; padding: 50px; font-size: 1.2rem; font-family: sans-serif;"> {/* فونت ساده برای لودینگ */}
+    <!-- 
+      پیام لودینگ ساده.
+      فایل‌های JS که در ادامه لود می‌شوند، محتوای این div را بازنویسی خواهند کرد.
+    -->
+    <div style="text-align: center; padding: 50px; font-size: 1.2rem; font-family: sans-serif;">
       در حال بارگذاری مستندات...
     </div>
   </div>
 
-  <!-- 3. ایمپورت کردن کدهای جاوااسکریپت Swagger UI -->
-  <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js" charset="UTF-8"></script>
-  <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+  <!-- 3. ایمپورت کردن کدهای جاوااسکریپت محلی -->
+  <!-- (نام فایل‌ها از .download به .js تغییر کرد) -->
+  <script src="./swagger-ui-bundle.js" charset="UTF-8"></script>
+  <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"></script>
 
-  <!-- 4. راه‌اندازی و پیکربندی Swagger UI -->
+  <!-- 
+    4. راه‌اندازی و پیکربندی Swagger UI 
+       (این کد مشابه فایل swagger-initializer.js شماست)
+  -->
   <script>
     window.onload = function() {
       // ساختن رابط کاربری
       const ui = SwaggerUIBundle({
         
         // --- مهم‌ترین بخش ---
-        // آدرس فایل جیسان شما. این فایل باید کنار index.html باشد.
+        // آدرس فایل جیسان شما.
         url: "sepidar-api.json", 
         
         dom_id: '#swagger-ui', // اتصال به تگ div بالا
@@ -67,6 +67,7 @@
           SwaggerUIBundle.plugins.DownloadUrl
         ],
         layout: "StandaloneLayout"
+        // queryConfigEnabled: false (این گزینه در فایل شما بود، می‌توان اضافه کرد)
       });
       window.ui = ui;
     };
