@@ -43,7 +43,7 @@ You can also install the package via Composer.
 
 شما می‌توانید این پکیج را از طریق Composer نیز نصب کنید.
 ```bash
-composer require your-github-username/sepidar-php-sdk
+composer require pourjanal/sepidar-php-sdk
 ```
 
 ## 💡 Usage (نحوه استفاده)
@@ -61,7 +61,7 @@ require_once 'SepidarApiClient.php';
 use App\Sepidar\SepidarApiClient; // Make sure the namespace matches
 
 // 2. Your Sepidar Credentials
-$sepidarApiUrl = '[http://127.0.0.1:7373/api](http://127.0.0.1:7373/api)'; // Sepidar API Base URL
+$sepidarApiUrl = 'http://127.0.0.1:7373/api'; // Sepidar API Base URL
 $sepidarSerial = 'YOUR_SEPIDAR_SERIAL';      // Your Sepidar Serial
 $sepidarGenVer = '110';                      // API Documentation Version
 $sepidarUsername = 'web';                      // Your Username
