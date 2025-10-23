@@ -6,7 +6,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // فقط این فایل را require کنید
-require_once 'SepidarApiClient.php';
+require_once __DIR__ . '/../SepidarApiClient.php';
 
 use App\Sepidar\SepidarApiClient;
 
@@ -59,4 +59,5 @@ try {
     echo "<p><strong>File:</strong> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
 }
 echo "</div>";
+
 
