@@ -2,7 +2,7 @@ window.onload = function() {
   
       //<editor-fold desc="Changeable Configuration Block">
       window.ui = SwaggerUIBundle({
-        url: "./swagger.json",
+        url: "./sepidar-api.json",
         "dom_id": "#swagger-ui",
         deepLinking: true,
         presets: [
