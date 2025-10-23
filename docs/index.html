@@ -5,41 +5,32 @@
   <meta charset="UTF-8">
   <title>مستندات API سپیدار (Swagger UI)</title>
   
-  <!-- فونت وزیرمتن برای خوانایی فارسی در مستندات -->
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+  <!-- فونت وزیرمتن حذف شد -->
+  <!-- <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet"> -->
   
   <!-- 1. ایمپورت کردن فایل‌های CSS و JS استاندارد Swagger UI -->
   <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css" />
   
   <style>
-    /* استایل‌های پایه برای نمایش تمام-صفحه و اعمال فونت فارسی */
+    /* استایل‌های پایه برای نمایش تمام-صفحه */
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       width: 100%;
-      /* فونت اصلی بدنه صفحه برای پیام لودینگ اولیه */
-      font-family: 'Vazirmatn', sans-serif !important; 
-      overflow: hidden; /* جلوگیری از اسکرول اضافه */
+      /* فونت وزیرمتن حذف شد - از فونت پیش‌فرض مرورگر استفاده می‌شود */
+      /* font-family: 'Vazirmatn', sans-serif !important; */ 
+      /* overflow: hidden حذف شد تا اسکرول فعال شود */
+      /* overflow: hidden; */ 
     }
     #swagger-ui {
-      height: 100vh;
-      width: 100vw;
+      /* ارتفاع را 100% والد (body) قرار می‌دهیم تا اسکرول داخلی کار کند */
+      height: 100%; 
+      width: 100%;
     }
-    /* اعمال فونت فارسی به بخش‌های کلیدی Swagger UI */
-    /* (این استایل‌ها تضمین می‌کنند متن‌های فارسی خوانا باشند) */
-    .swagger-ui .info .title, .swagger-ui .opblock-summary-path, 
-    .swagger-ui .opblock-summary-description, .swagger-ui .prop-type, 
-    .swagger-ui .parameter__name, .swagger-ui .description, 
-    .swagger-ui .info .description p, .swagger-ui .opblock-tag,
-    .swagger-ui .parameter__in, .swagger-ui label, .swagger-ui table thead tr th,
-    .swagger-ui .response-col_status, .swagger-ui .response-col_links {
-       font-family: 'Vazirmatn', sans-serif !important;
-    }
-    /* ممکن است لازم باشد دکمه‌ها هم فونت بگیرند */
-     .swagger-ui button {
-        font-family: 'Vazirmatn', sans-serif !important;
-     }
+    /* استایل‌های مربوط به فونت وزیرمتن حذف شدند */
+    /* .swagger-ui .info .title, ... { font-family: 'Vazirmatn', ... } */
+    /* .swagger-ui button { font-family: 'Vazirmatn', ... } */
   </style>
 </head>
 
@@ -47,7 +38,7 @@
   <!-- 2. این تگ div محلی است که Swagger UI در آن رندر می‌شود -->
   <div id="swagger-ui">
     <!-- نمایش پیام لودینگ تا زمان بارگذاری جیسان -->
-    <div style="text-align: center; padding: 50px; font-size: 1.2rem;">
+    <div style="text-align: center; padding: 50px; font-size: 1.2rem; font-family: sans-serif;"> {/* فونت ساده برای لودینگ */}
       در حال بارگذاری مستندات...
     </div>
   </div>
