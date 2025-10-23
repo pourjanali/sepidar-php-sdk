@@ -43,7 +43,7 @@ You can also install the package via Composer.
 
 شما می‌توانید این پکیج را از طریق Composer نیز نصب کنید.
 ```bash
-composer require pourjanal/sepidar-php-sdk
+composer require pourjanali/sepidar-php-sdk
 ```
 
 ## 💡 Usage (نحوه استفاده)
