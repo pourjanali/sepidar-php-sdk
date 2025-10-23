@@ -1,46 +1,76 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- فونت وزیرمتن برای خوانایی فارسی -->
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
-  <!-- ایمپورت کتابخانه RapiDoc -->
-  <script type="module" src="https://unpkg.com/rapidoc@9.3.4/dist/rapidoc-min.js"></script>
-  <title>مستندات API سپیدار</title>
-</head>
-<body>
+  <meta charset="UTF-8">
+  <title>مستندات API سپیدار (Swagger UI)</title>
   
-  <rapi-doc
-    <!-- این خط به فایل جیسان شما اشاره می‌کند -->
-    spec-url="sepidar-api.json" 
-    
-    <!-- تنظیمات ظاهری -->
-    theme="dark"
-    render-style="view"
-    show-header="false"
-    show-info="true"
-    allow-authentication="false"
-    allow-server-selection="false"
-    allow-api-list-style-selection="false"
-    nav-bg-color="#1A202C"
-    nav-text-color="#CBD5E0"
-    primary-color="#3182CE"
-    
-    <!-- تنظیمات فونت فارسی -->
-    regular-font="Vazirmatn"
-    mono-font="monospace"
-  >
-    <!-- لوگو و عنوان سفارشی در بالای صفحه -->
-    <div 
-      slot="nav-logo" 
-      style="display: flex; align-items: center; justify-content: center; padding: 12px 0; font-family: 'Vazirmatn', sans-serif;"
-    >
-      <h2 style="color: white; margin: 0; font-weight: 700;">
-        مستندات API سپیدار
-      </h2>
-    </div>
-  </rapi-doc>
+  <!-- فونت وزیرمتن برای خوانایی فارسی در مستندات -->
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- 1. ایمپورت کردن فایل‌های CSS و JS استاندارد Swagger UI -->
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css" />
+  
+  <style>
+    /* استایل‌های پایه برای نمایش تمام-صفحه و اعمال فونت فارسی */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: 'Vazirmatn', sans-serif !important;
+      overflow: hidden; /* جلوگیری از اسکرول اضافه */
+    }
+    #swagger-ui {
+      height: 100vh;
+      width: 100vw;
+    }
+    /* اعمال فونت فارسی به بخش‌هایی که Swagger ممکن است بازنویسی کند */
+    .swagger-ui .info .title, .swagger-ui .opblock-summary-path, 
+    .swagger-ui .opblock-summary-description, .swagger-ui .prop-type, 
+    .swagger-ui .parameter__name, .swagger-ui .description, 
+    .swagger-ui .info .description p, .swagger-ui .opblock-tag,
+    .swagger-ui .parameter__in {
+       font-family: 'Vazirmatn', sans-serif !important;
+    }
+  </style>
+</head>
 
+<body>
+  <!-- 2. این تگ div محلی است که Swagger UI در آن رندر می‌شود -->
+  <div id="swagger-ui">
+    <!-- نمایش پیام لودینگ تا زمان بارگذاری جیسان -->
+    <div style="text-align: center; padding: 50px; font-size: 1.2rem;">
+      در حال بارگذاری مستندات...
+    </div>
+  </div>
+
+  <!-- 3. ایمپورت کردن کدهای جاوااسکریپت Swagger UI -->
+  <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js" charset="UTF-8"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+
+  <!-- 4. راه‌اندازی و پیکربندی Swagger UI -->
+  <script>
+    window.onload = function() {
+      // ساختن رابط کاربری
+      const ui = SwaggerUIBundle({
+        
+        // --- مهم‌ترین بخش ---
+        // آدرس فایل جیسان شما. این فایل باید کنار index.html باشد.
+        url: "sepidar-api.json", 
+        
+        dom_id: '#swagger-ui', // اتصال به تگ div بالا
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+      });
+      window.ui = ui;
+    };
+  </script>
 </body>
 </html>
