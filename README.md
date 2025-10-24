@@ -1,4 +1,4 @@
-# Sepidar PHP SDK
+# 🐘 Sepidar PHP SDK
 
 <p align="center">
   <a href="#"><img src="https://img.shields.io/badge/PHP-8.0%2B-blue.svg" alt="PHP Version"></a>
@@ -15,17 +15,30 @@
 
 ---
 
-This SDK provides a straightforward and hassle-free way to connect your PHP applications to the Sepidar accounting system's web services. It's designed to be portable, with **zero external dependencies**, making it perfect for any PHP environment, including shared hosting or projects without Composer.
+## 🔗 Related Resources
 
-این SDK یک راهکار ساده و بی‌دردسر برای اتصال برنامه‌های PHP شما به وب‌سرویس سیستم حسابداری سپیدار فراهم می‌کند. این پکیج با هدف پرتابل بودن و **بدون هیچ‌گونه وابستگی خارجی** طراحی شده و برای هر نوع محیط PHP، از جمله هاست‌های اشتراکی یا پروژه‌هایی که از Composer استفاده نمی‌کنند، ایده‌آل است.
+- 🌐 **Swagger API Docs (v111):** [https://pourjanali.github.io/sepidar-api-docs](https://pourjanali.github.io/sepidar-api-docs)  
+- 📘 **API Docs Repository:** [https://github.com/pourjanali/sepidar-api-docs](https://github.com/pourjanali/sepidar-api-docs)
+
+---
+
+This SDK provides a straightforward and hassle-free way to connect your PHP applications to the Sepidar accounting system's web services.  
+It's designed to be portable, with **zero external dependencies**, making it perfect for any PHP environment — including shared hosting or projects without Composer.
+
+این SDK یک راهکار ساده و بی‌دردسر برای اتصال برنامه‌های PHP شما به وب‌سرویس سیستم حسابداری سپیدار فراهم می‌کند.  
+این پکیج با هدف پرتابل بودن و **بدون هیچ‌گونه وابستگی خارجی** طراحی شده و برای هر نوع محیط PHP، از جمله هاست‌های اشتراکی یا پروژه‌هایی که از Composer استفاده نمی‌کنند، ایده‌آل است.
+
+---
 
 ## ✨ Key Features (ویژگی‌های کلیدی)
 
-* **✅ Zero Dependencies:** No need for Guzzle, phpseclib, or even Composer. Just standard PHP extensions (cURL, OpenSSL, SimpleXML).
-* **🚀 Lightweight & Fast:** A single class that handles everything, ensuring minimal overhead.
-* **🔒 Full Authentication Flow:** Manages the entire Sepidar authentication process, including device registration, public key extraction, and RSA encryption for secure requests.
-* **🔧 Easy to Use:** A simple and intuitive API lets you get started in minutes.
-* **🌐 Framework-Agnostic:** Works with any PHP project, whether it's plain PHP, WordPress, or any other framework.
+- **✅ Zero Dependencies:** No need for Guzzle, phpseclib, or even Composer. Just standard PHP extensions (cURL, OpenSSL, SimpleXML).  
+- **🚀 Lightweight & Fast:** A single class that handles everything, ensuring minimal overhead.  
+- **🔒 Full Authentication Flow:** Manages the entire Sepidar authentication process — including device registration, public key extraction, and RSA encryption for secure requests.  
+- **🔧 Easy to Use:** A simple and intuitive API lets you get started in minutes.  
+- **🌐 Framework-Agnostic:** Works with any PHP project, whether it's plain PHP, WordPress, or any other framework.
+
+---
 
 ## 🛠️ Installation (نصب)
 
@@ -36,6 +49,7 @@ The easiest way is to download the `SepidarApiClient.php` file and include it in
 
 ```php
 require_once 'path/to/SepidarApiClient.php';
+
 ```
 
 ### 2. Composer (روش پیشنهادی)
