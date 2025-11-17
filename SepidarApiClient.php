@@ -12,11 +12,15 @@ class SepidarApiClient
     protected string $key; // AES key
     protected int $integrationId;
 
+    // مسیر ذخیره‌سازی وضعیت
+    protected string $storagePath;
+
     // متغیرهای حافظه موقت (به جای فایل)
     private ?string $pem = null;
     private ?string $token = null;
+    private bool $isRegistered = false;
 
-    public function __construct(string $baseUrl, string $serial, string $generationVersion)
+    public function __construct(string $baseUrl, string $serial, string $generationVersion, string $storagePath = null)
     {
         if (!function_exists('curl_init')) {
             throw new \Exception('cURL extension is not enabled. Please enable it in your php.ini');
@@ -32,15 +36,117 @@ class SepidarApiClient
         // ساخت کلید AES و IntegrationID بر اساس سریال
         $this->key = $this->serial . $this->serial;
         $this->integrationId = (int)substr($this->serial, 0, 4);
+
+        // مسیر ذخیره‌سازی وضعیت
+        $this->storagePath = $storagePath ?: sys_get_temp_dir() . '/sepidar_auth/';
+        if (!is_dir($this->storagePath)) {
+            mkdir($this->storagePath, 0755, true);
+        }
+
+        // بارگذاری وضعیت ذخیره شده
+        $this->loadAuthState();
     }
 
     /**
-     * گام ۱: ثبت دستگاه (در هر اجرا فراخوانی می‌شود)
+     * بارگذاری وضعیت احراز هویت از ذخیره‌سازی
+     */
+    private function loadAuthState(): void
+    {
+        $stateFile = $this->getStateFilePath();
+        
+        if (file_exists($stateFile)) {
+            $state = json_decode(file_get_contents($stateFile), true);
+            
+            if ($state && is_array($state)) {
+                $this->pem = $state['pem'] ?? null;
+                $this->token = $state['token'] ?? null;
+                $this->isRegistered = $state['isRegistered'] ?? false;
+                
+                // بررسی انقضای توکن (اگر بیش از 23 ساعت گذشته، باطل می‌شود)
+                $tokenTime = $state['token_time'] ?? 0;
+                if ($this->token && (time() - $tokenTime) < 82800) { // 23 ساعت
+                    $this->token = $state['token'];
+                } else {
+                    $this->token = null;
+                    $this->saveAuthState();
+                }
+            }
+        }
+    }
+
+    /**
+     * ذخیره وضعیت احراز هویت
+     */
+    private function saveAuthState(): void
+    {
+        $state = [
+            'pem' => $this->pem,
+            'token' => $this->token,
+            'isRegistered' => $this->isRegistered,
+            'token_time' => $this->token ? time() : 0,
+            'serial' => $this->serial, // برای اطمینان از تطابق سریال
+            'saved_at' => date('Y-m-d H:i:s')
+        ];
+        
+        file_put_contents($this->getStateFilePath(), json_encode($state, JSON_PRETTY_PRINT));
+    }
+
+    /**
+     * پاک کردن وضعیت احراز هویت
+     */
+    public function clearAuthState(): void
+    {
+        $stateFile = $this->getStateFilePath();
+        if (file_exists($stateFile)) {
+            unlink($stateFile);
+        }
+        
+        $this->pem = null;
+        $this->token = null;
+        $this->isRegistered = false;
+    }
+
+    /**
+     * مسیر فایل ذخیره‌سازی وضعیت
+     */
+    private function getStateFilePath(): string
+    {
+        $filename = 'sepidar_auth_' . md5($this->serial . $this->baseUrl) . '.json';
+        return $this->storagePath . $filename;
+    }
+
+    /**
+     * بررسی آیا دستگاه قبلاً ثبت شده و کلید عمومی استخراج شده
+     */
+    public function isDeviceRegistered(): bool
+    {
+        return $this->isRegistered && $this->pem !== null;
+    }
+
+    /**
+     * بررسی آیا کاربر لاگین کرده
+     */
+    public function isLoggedIn(): bool
+    {
+        return $this->token !== null;
+    }
+
+    /**
+     * گام ۱: ثبت دستگاه (فقط اگر قبلاً ثبت نشده)
      * @return array
      * @throws \Exception
      */
     public function registerDevice(): array
     {
+        // اگر قبلاً ثبت شده، نیازی به ثبت مجدد نیست
+        if ($this->isDeviceRegistered()) {
+            return [
+                'success' => true,
+                'message' => 'Device already registered.',
+                'from_cache' => true
+            ];
+        }
+
         list($cypherBase64, $ivBase64) = $this->encryptAes($this->key, (string)$this->integrationId);
 
         $payload = [
@@ -53,10 +159,15 @@ class SepidarApiClient
 
         if ($result['success']) {
             $data = $result['data'];
-            // به جای ذخیره در فایل، مقادیر را برای مرحله بعد برمی‌گردانیم
+            
+            // ذخیره وضعیت ثبت
+            $this->isRegistered = true;
+            $this->saveAuthState();
+            
             return [
                 'success' => true,
-                'message' => 'Device registered (in-memory).',
+                'message' => 'Device registered successfully.',
+                'from_cache' => false,
                 'cypher' => $data['Cypher'],
                 'iv' => $data['IV']
             ];
@@ -66,13 +177,18 @@ class SepidarApiClient
     }
 
     /**
-     * گام ۲: استخراج کلید عمومی (در هر اجرا فراخوانی می‌شود)
+     * گام ۲: استخراج کلید عمومی (فقط اگر قبلاً استخراج نشده)
      * @return array
      * @throws \Exception
      */
     protected function extractPublicKey(): array
     {
-        // همیشه دستگاه را ثبت کن چون چیزی ذخیره نکرده‌ایم
+        // اگر قبلاً استخراج شده، از حافظه استفاده کن
+        if ($this->pem !== null) {
+            return ['success' => true, 'message' => 'Public key loaded from cache.', 'from_cache' => true];
+        }
+
+        // همیشه دستگاه را ثبت کن اگر ثبت نشده
         $regResult = $this->registerDevice();
         if (!$regResult['success']) {
             return $regResult; // برگرداندن خطای رجیستر
@@ -102,17 +218,17 @@ class SepidarApiClient
         $exponent_b64 = (string)$xmlObj->Exponent;
 
         // تبدیل Modulus و Exponent به فرمت PEM
-        // این تابع جایگزین phpseclib می‌شود
         $pem = $this->convertModExpToPem(base64_decode($modulus_b64), base64_decode($exponent_b64));
 
         if ($pem === false) {
              return ['success' => false, 'message' => '❌ ساخت کلید PEM ناموفق بود.'];
         }
 
-        // ذخیره کلید در حافظه موقت کلاس
+        // ذخیره کلید در حافظه موقت کلاس و ذخیره‌سازی
         $this->pem = $pem;
+        $this->saveAuthState();
 
-        return ['success' => true, 'message' => '✅ کلید عمومی استخراج و در حافظه ذخیره شد.'];
+        return ['success' => true, 'message' => '✅ کلید عمومی استخراج و ذخیره شد.', 'from_cache' => false];
     }
 
     /**
@@ -126,11 +242,7 @@ class SepidarApiClient
         if ($this->pem === null) {
             $extractResult = $this->extractPublicKey();
             if (!$extractResult['success']) {
-                // $extractResult['message'] is '❌ خطا در ارتباط با Sepidar'
-                // $extractResult['error_body'] is the *real* error
-                // --- FIX: Add JSON_UNESCAPED_UNICODE to show Persian characters ---
                 $errorBodyJson = json_encode($extractResult['error_body'] ?? 'No response body', JSON_UNESCAPED_UNICODE);
-                // --- END FIX ---
                 throw new \Exception($extractResult['message'] . " - Body: " . $errorBodyJson);
             }
         }
@@ -167,7 +279,7 @@ class SepidarApiClient
     }
 
     /**
-     * گام ۴: لاگین و دریافت توکن
+     * گام ۴: لاگین و دریافت توکن (فقط اگر قبلاً لاگین نکرده)
      * @param string $username
      * @param string $password
      * @return array
@@ -175,6 +287,16 @@ class SepidarApiClient
     public function login(string $username, string $password): array
     {
         try {
+            // اگر قبلاً لاگین کرده‌اید، از توکن موجود استفاده کنید
+            if ($this->isLoggedIn()) {
+                return [
+                    'success' => true,
+                    'message' => 'Already logged in (using cached token).',
+                    'from_cache' => true,
+                    'data' => ['Token' => $this->token]
+                ];
+            }
+
             $headers = $this->generateHeaders();
             $body = [
                 'UserName' => $username,
@@ -188,11 +310,14 @@ class SepidarApiClient
                 $token = $data['Token'] ?? null;
 
                 if ($token) {
-                    // ذخیره توکن در حافظه موقت کلاس
+                    // ذخیره توکن در حافظه موقت کلاس و ذخیره‌سازی
                     $this->token = $token;
+                    $this->saveAuthState();
+                    
                     return [
                         'success' => true,
-                        'message' => 'Login successful (in-memory)',
+                        'message' => 'Login successful and token saved.',
+                        'from_cache' => false,
                         'data' => $data
                     ];
                 } else {
@@ -208,6 +333,18 @@ class SepidarApiClient
     }
 
     /**
+     * لاگین اجباری (برای زمانی که می‌خواهید حتماً لاگین تازه انجام شود)
+     * @param string $username
+     * @param string $password
+     * @return array
+     */
+    public function forceLogin(string $username, string $password): array
+    {
+        $this->clearAuthState();
+        return $this->login($username, $password);
+    }
+
+    /**
      * گام ۵: دریافت لیست آیتم‌ها (نیازمند لاگین)
      * @return array
      */
@@ -215,7 +352,6 @@ class SepidarApiClient
     {
         try {
             // ۱. هدرهای احراز هویت شده را دریافت کن
-            // (این تابع خودش چک می‌کند که توکن داشته باشیم)
             $headersResult = $this->getAuthenticatedHeaders();
 
             if (empty($headersResult['success'])) {
@@ -226,7 +362,6 @@ class SepidarApiClient
             $headers = $headersResult['headers'];
             
             // ۲. درخواست GET را به اندپوینت Items ارسال کن
-            // (بر اساس داکیومنت، متد GET و آدرس Items است)
             $result = $this->httpClientRequest('GET', 'Items', $headers, []);
 
             return $result; // بازگرداندن نتیجه (موفق یا ناموفق)
@@ -243,18 +378,31 @@ class SepidarApiClient
      */
     public function getAuthenticatedHeaders(): array
     {
-        $token = $this->getCachedToken();
-        if (!$token) {
-             // اگر لاگین نکرده باشیم، توکن نداریم
+        // اگر توکن نداریم، خطا برگردان
+        if (!$this->isLoggedIn()) {
             return ['success' => false, 'message' => 'User not logged in. Please login first.'];
         }
 
         $baseHeaders = $this->generateHeaders();
         $authHeaders = [
-            'Authorization' => 'Bearer ' . $token
+            'Authorization' => 'Bearer ' . $this->token
         ];
 
         return ['success' => true, 'headers' => array_merge($baseHeaders, $authHeaders)];
+    }
+
+    /**
+     * دریافت وضعیت فعلی احراز هویت
+     * @return array
+     */
+    public function getAuthStatus(): array
+    {
+        return [
+            'device_registered' => $this->isDeviceRegistered(),
+            'logged_in' => $this->isLoggedIn(),
+            'has_public_key' => $this->pem !== null,
+            'storage_path' => $this->storagePath
+        ];
     }
 
     /**
@@ -266,8 +414,8 @@ class SepidarApiClient
         return $this->token;
     }
 
-    // --- توابع کمکی ---
-
+    // --- توابع کمکی --- (بقیه توابع بدون تغییر می‌مانند)
+    
     /**
      * تابع کمکی برای ارسال درخواست‌های cURL (جایگزین Guzzle)
      */
@@ -474,9 +622,3 @@ class SepidarApiClient
         return chr(0x80 | strlen($lengthBytes)) . $lengthBytes;
     }
 }
-
-
-
-
-
-
