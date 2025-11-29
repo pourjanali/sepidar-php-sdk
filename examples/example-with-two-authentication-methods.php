@@ -51,16 +51,16 @@ try {
             $client = new \App\Sepidar\SepidarApiClient($sepidarApiUrl, $sepidarSerial, $sepidarGenVer, $storagePath);
             $outputs['auth_method'] = "🔐 استفاده از روش لاگین معمولی\n";
             $outputs['auth_method'] .= "📋 اطلاعات وارد شده:\n";
-            $outputs['auth_method'] .= "- آدرس: " . $sepidarApiUrl . "\n";
-            $outputs['auth_method'] .= "- سریال: " . $sepidarSerial . "\n";
-            $outputs['auth_method'] .= "- ورژن: " . $sepidarGenVer . "\n";
-            $outputs['auth_method'] .= "- کاربری: " . $sepidarUsername . "\n";
+            $outputs['auth_method'] .= "- SepidarServerApiUrl: " . $sepidarApiUrl . "\n";
+            $outputs['auth_method'] .= "- Serial Code: " . $sepidarSerial . "\n";
+            $outputs['auth_method'] .= "- GenerationVersion: " . $sepidarGenVer . "\n";
+            $outputs['auth_method'] .= "- Username: " . $sepidarUsername . "\n";
         } else {
             // برای روش مستقیم، می‌توانیم از یک سریال ساختگی استفاده کنیم
             $client = new \App\Sepidar\SepidarApiClient($sepidarApiUrl, 'direct_keys_mode', $directGenerationVersion, $storagePath);
             $outputs['auth_method'] = "🔑 استفاده از روش کلیدهای مستقیم\n";
             $outputs['auth_method'] .= "📋 اطلاعات وارد شده:\n";
-            $outputs['auth_method'] .= "- آدرس: " . $sepidarApiUrl . "\n";
+            $outputs['auth_method'] .= "- SepidarServerApiUrl: " . $sepidarApiUrl . "\n";
             $outputs['auth_method'] .= "- IntegrationID: " . $directIntegrationId . "\n";
             $outputs['auth_method'] .= "- GenerationVersion: " . $directGenerationVersion . "\n";
         }
