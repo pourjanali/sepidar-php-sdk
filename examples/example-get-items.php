@@ -11,7 +11,7 @@ require_once __DIR__ . '/../SepidarApiClient.php';
 
 // ! مقادیر زیر را با اطلاعات واقعی خود جایگزین کنید
 $sepidarApiUrl = 'http://127.0.0.1:7373/api'; // آدرس وب‌سرویس سپیدار
-$sepidarSerial = '1024dbfe';          // سریال سپیدار
+$sepidarSerial = '1024fb89';          // سریال سپیدار
 $sepidarGenVer = '110';              // ورژن مستندات
 $sepidarUsername = 'web';              // نام کاربری
 $sepidarPassword = 'web';              // رمز عبور

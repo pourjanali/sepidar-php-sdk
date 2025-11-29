@@ -19,6 +19,16 @@ class SepidarApiClient
     private ?string $pem = null;
     private ?string $token = null;
     private bool $isRegistered = false;
+    
+    // حالت احراز هویت
+    private string $authMode = 'auto'; // 'auto', 'login', 'direct_keys'
+    
+    // کلیدهای مستقیم برای حالت دوم
+    private ?string $directIntegrationId = null;
+    private ?string $directArbitraryCode = null;
+    private ?string $directEncArbitraryCode = null;
+    private ?string $directGenerationVersion = null;
+    private ?string $directToken = null;
 
     public function __construct(string $baseUrl, string $serial, string $generationVersion, string $storagePath = null)
     {
@@ -45,6 +55,37 @@ class SepidarApiClient
 
         // بارگذاری وضعیت ذخیره شده
         $this->loadAuthState();
+    }
+
+    /**
+     * تنظیم حالت احراز هویت
+     */
+    public function setAuthMode(string $mode): void
+    {
+        $allowedModes = ['auto', 'login', 'direct_keys'];
+        if (!in_array($mode, $allowedModes)) {
+            throw new \Exception('Invalid auth mode. Allowed: ' . implode(', ', $allowedModes));
+        }
+        $this->authMode = $mode;
+    }
+
+    /**
+     * تنظیم کلیدهای مستقیم برای احراز هویت
+     */
+    public function setDirectKeys(
+        string $integrationId,
+        string $arbitraryCode,
+        string $encArbitraryCode,
+        string $generationVersion,
+        string $token
+    ): void {
+        $this->directIntegrationId = $integrationId;
+        $this->directArbitraryCode = $arbitraryCode;
+        $this->directEncArbitraryCode = $encArbitraryCode;
+        $this->directGenerationVersion = $generationVersion;
+        $this->directToken = $token;
+        
+        $this->authMode = 'direct_keys';
     }
 
     /**
@@ -132,12 +173,31 @@ class SepidarApiClient
     }
 
     /**
+     * بررسی آیا از کلیدهای مستقیم استفاده می‌شود
+     */
+    public function isUsingDirectKeys(): bool
+    {
+        return $this->authMode === 'direct_keys' && 
+               $this->directToken !== null && 
+               $this->directIntegrationId !== null;
+    }
+
+    /**
      * گام ۱: ثبت دستگاه (فقط اگر قبلاً ثبت نشده)
      * @return array
      * @throws \Exception
      */
     public function registerDevice(): array
     {
+        // اگر از کلیدهای مستقیم استفاده می‌کنیم، نیازی به ثبت دستگاه نیست
+        if ($this->isUsingDirectKeys()) {
+            return [
+                'success' => true,
+                'message' => 'Using direct keys mode - device registration skipped.',
+                'from_cache' => true
+            ];
+        }
+
         // اگر قبلاً ثبت شده، نیازی به ثبت مجدد نیست
         if ($this->isDeviceRegistered()) {
             return [
@@ -183,6 +243,11 @@ class SepidarApiClient
      */
     protected function extractPublicKey(): array
     {
+        // اگر از کلیدهای مستقیم استفاده می‌کنیم، نیازی به استخراج کلید نیست
+        if ($this->isUsingDirectKeys()) {
+            return ['success' => true, 'message' => 'Using direct keys mode - public key extraction skipped.', 'from_cache' => true];
+        }
+
         // اگر قبلاً استخراج شده، از حافظه استفاده کن
         if ($this->pem !== null) {
             return ['success' => true, 'message' => 'Public key loaded from cache.', 'from_cache' => true];
@@ -238,6 +303,16 @@ class SepidarApiClient
      */
     protected function generateHeaders(): array
     {
+        // اگر از کلیدهای مستقیم استفاده می‌کنیم، از کلیدهای مستقیم استفاده کن
+        if ($this->isUsingDirectKeys()) {
+            return [
+                'GenerationVersion' => $this->directGenerationVersion,
+                'IntegrationID' => $this->directIntegrationId,
+                'ArbitraryCode' => $this->directArbitraryCode,
+                'EncArbitraryCode' => $this->directEncArbitraryCode,
+            ];
+        }
+
         // چک می‌کنیم آیا کلید در حافظه هست یا نه
         if ($this->pem === null) {
             $extractResult = $this->extractPublicKey();
@@ -277,60 +352,87 @@ class SepidarApiClient
             'EncArbitraryCode' => $encArbitraryCode,
         ];
     }
+/**
+ * گام ۴: لاگین و دریافت توکن (فقط اگر قبلاً لاگین نکرده)
+ * @param string $username
+ * @param string $password
+ * @return array
+ */
+public function login(string $username, string $password): array
+{
+    try {
+        // اگر از کلیدهای مستقیم استفاده می‌کنیم، لاگین انجام نده
+        if ($this->isUsingDirectKeys()) {
+            return [
+                'success' => true,
+                'message' => 'Using direct keys mode - login skipped.',
+                'from_cache' => true,
+                'data' => ['Token' => $this->directToken],
+                'headers_used' => [
+                    'GenerationVersion' => $this->directGenerationVersion,
+                    'IntegrationID' => $this->directIntegrationId,
+                    'ArbitraryCode' => $this->directArbitraryCode,
+                    'EncArbitraryCode' => $this->directEncArbitraryCode,
+                    'Authorization' => 'Bearer ' . $this->directToken
+                ]
+            ];
+        }
 
-    /**
-     * گام ۴: لاگین و دریافت توکن (فقط اگر قبلاً لاگین نکرده)
-     * @param string $username
-     * @param string $password
-     * @return array
-     */
-    public function login(string $username, string $password): array
-    {
-        try {
-            // اگر قبلاً لاگین کرده‌اید، از توکن موجود استفاده کنید
-            if ($this->isLoggedIn()) {
+        // اگر قبلاً لاگین کرده‌اید، از توکن موجود استفاده کنید
+        if ($this->isLoggedIn()) {
+            $headers = $this->generateHeaders();
+            return [
+                'success' => true,
+                'message' => 'Already logged in (using cached token).',
+                'from_cache' => true,
+                'data' => ['Token' => $this->token],
+                'headers_used' => array_merge($headers, [
+                    'Authorization' => 'Bearer ' . $this->token
+                ])
+            ];
+        }
+
+        $headers = $this->generateHeaders();
+        $body = [
+            'UserName' => $username,
+            'PasswordHash' => md5($password),
+        ];
+
+        $result = $this->httpClientRequest('POST', 'users/login', $headers, $body);
+
+        if ($result['success']) {
+            $data = $result['data'];
+            $token = $data['Token'] ?? null;
+
+            if ($token) {
+                // ذخیره توکن در حافظه موقت کلاس و ذخیره‌سازی
+                $this->token = $token;
+                $this->saveAuthState();
+                
                 return [
                     'success' => true,
-                    'message' => 'Already logged in (using cached token).',
-                    'from_cache' => true,
-                    'data' => ['Token' => $this->token]
+                    'message' => 'Login successful and token saved.',
+                    'from_cache' => false,
+                    'data' => $data,
+                    'headers_used' => $headers // Headers used for login request
+                ];
+            } else {
+                return [
+                    'success' => false, 
+                    'message' => 'Token not found in response',
+                    'headers_used' => $headers
                 ];
             }
-
-            $headers = $this->generateHeaders();
-            $body = [
-                'UserName' => $username,
-                'PasswordHash' => md5($password),
-            ];
-
-            $result = $this->httpClientRequest('POST', 'users/login', $headers, $body);
-
-            if ($result['success']) {
-                $data = $result['data'];
-                $token = $data['Token'] ?? null;
-
-                if ($token) {
-                    // ذخیره توکن در حافظه موقت کلاس و ذخیره‌سازی
-                    $this->token = $token;
-                    $this->saveAuthState();
-                    
-                    return [
-                        'success' => true,
-                        'message' => 'Login successful and token saved.',
-                        'from_cache' => false,
-                        'data' => $data
-                    ];
-                } else {
-                    return ['success' => false, 'message' => 'Token not found in response'];
-                }
-            } else {
-                return $result; // برگرداندن خطای cURL
-            }
-
-        } catch (\Exception $e) {
-            return $this->handleError($e);
+        } else {
+            $result['headers_used'] = $headers;
+            return $result; // برگرداندن خطای cURL
         }
+
+    } catch (\Exception $e) {
+        return $this->handleError($e);
     }
+}
+
 
     /**
      * لاگین اجباری (برای زمانی که می‌خواهید حتماً لاگین تازه انجام شود)
@@ -345,7 +447,43 @@ class SepidarApiClient
     }
 
     /**
-     * گام ۵: دریافت لیست آیتم‌ها (نیازمند لاگین)
+     * گام ۵: ساخت هدرهای احراز هویت شده (با توکن)
+     * @return array
+     * @throws \Exception
+     */
+    public function getAuthenticatedHeaders(): array
+    {
+        // اگر از کلیدهای مستقیم استفاده می‌کنیم
+        if ($this->isUsingDirectKeys()) {
+            $baseHeaders = [
+                'GenerationVersion' => $this->directGenerationVersion,
+                'IntegrationID' => $this->directIntegrationId,
+                'ArbitraryCode' => $this->directArbitraryCode,
+                'EncArbitraryCode' => $this->directEncArbitraryCode,
+            ];
+            
+            $authHeaders = [
+                'Authorization' => 'Bearer ' . $this->directToken
+            ];
+
+            return ['success' => true, 'headers' => array_merge($baseHeaders, $authHeaders)];
+        }
+
+        // اگر توکن نداریم، خطا برگردان
+        if (!$this->isLoggedIn()) {
+            return ['success' => false, 'message' => 'User not logged in. Please login first.'];
+        }
+
+        $baseHeaders = $this->generateHeaders();
+        $authHeaders = [
+            'Authorization' => 'Bearer ' . $this->token
+        ];
+
+        return ['success' => true, 'headers' => array_merge($baseHeaders, $authHeaders)];
+    }
+
+    /**
+     * دریافت لیست آیتم‌ها (نیازمند لاگین)
      * @return array
      */
     public function getItems(): array
@@ -372,23 +510,54 @@ class SepidarApiClient
     }
 
     /**
-     * گام ۵: ساخت هدرهای احراز هویت شده (با توکن)
+     * ارسال درخواست POST به اندپوینت دلخواه
+     * @param string $endpoint
+     * @param array $data
      * @return array
-     * @throws \Exception
      */
-    public function getAuthenticatedHeaders(): array
+    public function post(string $endpoint, array $data = []): array
     {
-        // اگر توکن نداریم، خطا برگردان
-        if (!$this->isLoggedIn()) {
-            return ['success' => false, 'message' => 'User not logged in. Please login first.'];
+        try {
+            $headersResult = $this->getAuthenticatedHeaders();
+
+            if (empty($headersResult['success'])) {
+                return $headersResult;
+            }
+
+            $headers = $headersResult['headers'];
+            
+            $result = $this->httpClientRequest('POST', $endpoint, $headers, $data);
+
+            return $result;
+
+        } catch (\Exception $e) {
+            return $this->handleError($e);
         }
+    }
 
-        $baseHeaders = $this->generateHeaders();
-        $authHeaders = [
-            'Authorization' => 'Bearer ' . $this->token
-        ];
+    /**
+     * ارسال درخواست GET به اندپوینت دلخواه
+     * @param string $endpoint
+     * @return array
+     */
+    public function get(string $endpoint): array
+    {
+        try {
+            $headersResult = $this->getAuthenticatedHeaders();
 
-        return ['success' => true, 'headers' => array_merge($baseHeaders, $authHeaders)];
+            if (empty($headersResult['success'])) {
+                return $headersResult;
+            }
+
+            $headers = $headersResult['headers'];
+            
+            $result = $this->httpClientRequest('GET', $endpoint, $headers, []);
+
+            return $result;
+
+        } catch (\Exception $e) {
+            return $this->handleError($e);
+        }
     }
 
     /**
@@ -401,6 +570,8 @@ class SepidarApiClient
             'device_registered' => $this->isDeviceRegistered(),
             'logged_in' => $this->isLoggedIn(),
             'has_public_key' => $this->pem !== null,
+            'using_direct_keys' => $this->isUsingDirectKeys(),
+            'auth_mode' => $this->authMode,
             'storage_path' => $this->storagePath
         ];
     }
@@ -411,10 +582,10 @@ class SepidarApiClient
      */
     public function getCachedToken(): ?string
     {
-        return $this->token;
+        return $this->isUsingDirectKeys() ? $this->directToken : $this->token;
     }
 
-    // --- توابع کمکی --- (بقیه توابع بدون تغییر می‌مانند)
+    // --- توابع کمکی ---
     
     /**
      * تابع کمکی برای ارسال درخواست‌های cURL (جایگزین Guzzle)
