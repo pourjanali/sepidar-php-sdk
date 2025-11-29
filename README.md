@@ -21,6 +21,7 @@ A dependency-free, lightweight PHP SDK for seamless integration with the Sepidar
 
 - 🌐 **Swagger API Docs (v111):** [https://pourjanali.github.io/sepidar-api-docs](https://pourjanali.github.io/sepidar-api-docs)  
 - 📚 **API Docs Repository:** [https://github.com/pourjanali/sepidar-api-docs](https://github.com/pourjanali/sepidar-api-docs)
+- ⭕️ **Interactive Demo:** [http://sepidar-php.freehost.io/](http://sepidar-php.freehost.io/)
 
 ---
 
