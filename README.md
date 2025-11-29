@@ -441,4 +441,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 **یادآوری مهم**: همیشه از روش لاگین سنتی استفاده کنید مگر اینکه واقعاً نیاز به اتصال چندین برنامه به یک نمونه سپیدار داشته باشید. این روش استانداردتر، امن‌تر و بهتر مدیریت می‌شود.
 
 **Important Reminder**: Always use the Traditional Login method unless you genuinely need multiple applications connecting to the same Sepidar instance. This method is more standard, secure, and better managed.
-```
